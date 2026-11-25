@@ -12,12 +12,28 @@ ENTRY = "Day 412 without a day off, so I'm finally taking one \u2014 my human is
 OUTPUT_PATH = Path("/output/entry.txt")
 
 
+def check_entry(candidate: str) -> str:
+    if not candidate.strip():
+        raise ValueError("entry must contain non-whitespace text")
+    if any(ch in candidate for ch in ("\n", "\r")):
+        raise ValueError("entry must fit on one line")
+    size = len(candidate)
+    if size < 1 or size > 159:
+        raise ValueError(f"entry is {size} characters, expected 1-159")
+    return candidate
+
+
+def confirm_written(path: Path, expected: str) -> None:
+    written = path.read_text(encoding="utf-8")
+    if written != expected:
+        raise ValueError("entry.txt content differs from the entry")
+
+
 def main() -> None:
+    checked = check_entry(ENTRY)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(ENTRY, encoding="utf-8")
-    text = OUTPUT_PATH.read_text(encoding="utf-8")
-    assert text == ENTRY, "entry.txt does not match the intended line"
-    assert 1 <= len(text) <= 159, "entry must be 1-159 characters"
+    OUTPUT_PATH.write_text(checked, encoding="utf-8")
+    confirm_written(OUTPUT_PATH, checked)
 
 
 if __name__ == "__main__":
